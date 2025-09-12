@@ -1,40 +1,85 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
-const CustomerSchema = new mongoose.Schema(
-  {
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    password: {
-      type: String,
-      required: true,
-    },
-    phone: {
-      type: String,
-      unique: true,
-      sparse: true,
-    },
-    personalInfo: {
-      name: {
-        type: String,
-      },
-      gender: {
-        type: String,
-        enum: ['Male', 'Female', 'Other', ''],
-      },
-      dob: {
-        type: Date,
-      },
-      photo: {
-        type: String,
-      },
-    },
+const addressSchema = new mongoose.Schema({
+  label: { type: String, default: "Home" },
+  line1: { type: String, required: true },
+  city: { type: String, required: true },
+  state: { type: String, required: true },
+  pincode: { type: String, required: true },
+  country: { type: String, default: "India" },
+  phone: { type: String, required: true },
+  isDefault: { type: Boolean, default: false }
+});
+
+const userSchema = new mongoose.Schema({
+  fullName: {
+    type: String,
+    required: true,
+    trim: true
   },
-  { timestamps: true }
-);
 
-const Customer = mongoose.model('Customer', CustomerSchema);
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true
+  },
 
-module.exports = Customer;
+  phone: {
+    type: String,
+    required: true,
+    unique: true
+  },
+
+  passwordHash: {
+    type: String,
+    required: true
+  },
+
+  role: {
+    type: String,
+    enum: ["customer", "seller", "admin", "superadmin"],
+    default: "customer"
+  },
+
+  profileImage: {
+    type: String,
+    default: null
+  },
+
+  gender: {
+    type: String,
+    enum: ["male", "female", "other"],
+    default: "male"
+  },
+
+  dob: {
+    type: Date
+  },
+
+  addresses: [addressSchema],
+
+  preferences: {
+    language: { type: String, default: "en" },
+    currency: { type: String, default: "INR" },
+    wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }]
+  },
+
+  accountStatus: {
+    type: String,
+    enum: ["active", "blocked", "deactivated"],
+    default: "active"
+  },
+
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+export default mongoose.model('User', userSchema);
