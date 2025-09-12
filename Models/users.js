@@ -1,11 +1,7 @@
 const mongoose = require('mongoose');
 
-const userSchema = mongoose.Schema(
+const UserSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: true,
-    },
     email: {
       type: String,
       required: true,
@@ -15,38 +11,30 @@ const userSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    profileImage: {
+    phone: {
       type: String,
-      default: '',
+      unique: true,
+      sparse: true,
     },
-    address: {
-      street: {
+    personalInfo: {
+      name: {
         type: String,
-        default: '',
       },
-      city: {
+      gender: {
         type: String,
-        default: '',
+        enum: ['Male', 'Female', 'Other', ''],
       },
-      state: {
-        type: String,
-        default: '',
+      dob: {
+        type: Date,
       },
-      zip: {
+      photo: {
         type: String,
-        default: '',
-      },
-      country: {
-        type: String,
-        default: '',
       },
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model('customerInfo', UserSchema);
 
 module.exports = User;
