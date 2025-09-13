@@ -12,7 +12,7 @@ const authorizeUser = (req, res, next) => {
     }
 
     try {
-        const verified = jwt.verify(token,JWT_SECRET);
+        const verified = jwt.verify(token, JWT_SECRET);
         req.user = verified;
         next();
     } catch (err) {
@@ -20,4 +20,4 @@ const authorizeUser = (req, res, next) => {
     }
 };
 
-module.exports = authorizeUser;
+module.exports = { authorizeUser };
