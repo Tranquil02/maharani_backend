@@ -1,7 +1,7 @@
 const express = require('express');
-const { customerLogin, customerRegister, getCustomerProfile} = require('../Auth/customerAuth');
+const { customerLogin, customerRegister, getCustomerProfile } = require('../Auth/customerAuth');
 const {authorizeUser} = require('../Middleware/user');
-
+const updateCustomerProfile = require('../Controllers/updateCustomerProfile');
 
 
 const router = express.Router();
@@ -12,6 +12,7 @@ router.post('/auth/login', customerLogin);
 // Registration Route
 router.post('/auth/register', customerRegister);
 router.get('/profile', authorizeUser, getCustomerProfile);
+router.put('/profile', authorizeUser, updateCustomerProfile);
 
 
 module.exports = router;
