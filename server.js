@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 
 // Import Routes
 const customerRoutes = require('./Routes/customerRoute');
+const productRoutes = require('./Routes/ProductRoute');
 
 require('dotenv').config();
 
@@ -12,6 +13,7 @@ app.use(express.json());
 
 //API Routes
 app.use('/api/v1/customer', customerRoutes);
+app.use('/api/v1/product',productRoutes);
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/MaharaniDB';
