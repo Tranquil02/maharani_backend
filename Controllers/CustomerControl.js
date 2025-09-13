@@ -1,10 +1,10 @@
 const bcrypt = require('bcryptjs');
-const User = require('../Models/CustomerModel'); 
+const { default: User } = require('../Models/userModel');
 
 
 const updateCustomerProfile = async (req, res) => {
     try {
-        const userId = req.user.id; 
+        const userId = req.user.id;
         const {
             fullName,
             phone,
@@ -17,27 +17,27 @@ const updateCustomerProfile = async (req, res) => {
             password
         } = req.body;
 
-        
+
         const user = await User.findById(userId);
         if (!user) return res.status(404).json({ message: 'User not found' });
 
-      
+
         if (fullName) user.fullName = fullName;
         if (phone) user.phone = phone;
         if (email) user.email = email;
         if (gender) user.gender = gender;
         if (dob) user.dob = dob;
         if (profileImage) user.profileImage = profileImage;
-        if (addresses) user.addresses = addresses; 
-        if (preferences) user.preferences = preferences; 
+        if (addresses) user.addresses = addresses;
+        if (preferences) user.preferences = preferences;
 
-       
+        
         if (password) {
             const salt = await bcrypt.genSalt(10);
             user.password = await bcrypt.hash(password, salt);
         }
 
-        
+
         user.updatedAt = Date.now();
 
         await user.save();
@@ -63,4 +63,4 @@ const updateCustomerProfile = async (req, res) => {
     }
 };
 
-module.exports = updateCustomerProfile;
+module.exports = { updateCustomerProfile };

@@ -54,7 +54,8 @@ const userSchema = new mongoose.Schema({
   },
 
   dob: {
-    type: Date
+    type: Date,
+    default: ""
   },
 
   addresses: [addressSchema],
