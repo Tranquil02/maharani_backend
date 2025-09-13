@@ -1,6 +1,6 @@
 const bcrypt=require("bcryptjs");
 const jwt=require("jsonwebtoken");
-const { default: User } = require("../Models/CustomerModel");
+const { default: User } = require("../Models/userModel");
 
 
 const JWT_SECRET = process.env.JWT_SECRET || "4e997ad5e6d386d87889d474bd15a74c";
