@@ -14,7 +14,7 @@ const addressSchema = new mongoose.Schema({
 const userSchema = new mongoose.Schema({
   fullName: {
     type: String,
-    required: true,
+    default:"",
     trim: true
   },
 
@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema({
     unique: true
   },
 
-  passwordHash: {
+  password: {
     type: String,
     required: true
   },
@@ -44,7 +44,7 @@ const userSchema = new mongoose.Schema({
 
   profileImage: {
     type: String,
-    default: null
+    default: ""
   },
 
   gender: {
@@ -67,7 +67,7 @@ const userSchema = new mongoose.Schema({
 
   accountStatus: {
     type: String,
-    enum: ["active", "blocked", "deactivated"],
+    enum: ["active", "pending", "deactivated"],
     default: "active"
   },
 
@@ -82,4 +82,5 @@ const userSchema = new mongoose.Schema({
   }
 });
 
-export default mongoose.model('User', userSchema);
+const User = mongoose.model('User', userSchema);
+export default User;

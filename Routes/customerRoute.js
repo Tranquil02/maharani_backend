@@ -1,13 +1,15 @@
 const express = require('express');
-const { customerLogin, customerRegister } = require('../Auth/customerAuth');
+const { customerLogin, customerRegister, getCustomerProfile } = require('../Auth/customerAuth');
+const authorizeUser = require('../Middleware/user');
 
 
 const router = express.Router();
 
 // Login Route
-router.post('/login', customerLogin);
+router.post('/auth/login', customerLogin);
 
 // Registration Route
-router.post('/register', customerRegister);
+router.post('/auth/register', customerRegister);
+router.get('/profile', authorizeUser, getCustomerProfile);
 
 module.exports = router;
