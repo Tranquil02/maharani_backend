@@ -1,11 +1,11 @@
 const express = require('express');
-const {authorizeUser} = require('../Middleware/user');
+const { VerifyJWT} = require('../Middleware/Functions');
 const { addProduct } = require('../Controllers/ProductControl');
 
 
 
 const router = express.Router();
 
-router.post('/addProduct', authorizeUser, addProduct);
+router.post('/addProduct', VerifyJWT, addProduct);
 
 module.exports = router;

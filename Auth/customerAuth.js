@@ -1,15 +1,7 @@
 const bcrypt=require("bcryptjs");
 const jwt=require("jsonwebtoken");
 const { default: User } = require("../Models/userModel");
-
-
-const JWT_SECRET = process.env.JWT_SECRET || "4e997ad5e6d386d87889d474bd15a74c";
-
-// Function to generate JWT token
-// const generateAuthToken = (user) => {
-//     const payload = { id: user._id, email: user.email, role: user.role };
-//     return jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
-// };
+const { generateAuthToken } = require("../Middleware/Functions");
 
 // Customer Login
 const customerLogin = async (req, res) => {
@@ -25,13 +17,16 @@ const customerLogin = async (req, res) => {
             return res.status(401).json({ message: 'Invalid email or password.' });
         }
 
+        if (user.accountStatus !== 'active') {
+            return res.status(403).json({ message: 'Your account is not active.' });
+        }
+
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(401).json({ message: 'Invalid email or password.' });
         }
 
-        const payload = { id: user._id, email: user.email, role: user.role };
-        const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
+        const token = generateAuthToken(user);
 
         res.status(200).json({ message: 'Login successful.', token });
     } catch (error) {

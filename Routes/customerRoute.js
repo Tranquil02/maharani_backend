@@ -1,19 +1,19 @@
 const express = require('express');
 const { customerLogin, customerRegister, getCustomerProfile } = require('../Auth/customerAuth');
-const {authorizeUser} = require('../Middleware/user');
+const {VerifyJWT} = require('../Middleware/Functions');
 const { updateCustomerProfile } = require('../Controllers/CustomerControl');
 
 
 
 const router = express.Router();
 
-// Login Route
+// Auth Routes
 router.post('/auth/login', customerLogin);
-
-// Registration Route
 router.post('/auth/register', customerRegister);
-router.get('/profile', authorizeUser, getCustomerProfile);
-router.put('/updateprofile', authorizeUser, updateCustomerProfile);
+
+// Profile Routes
+router.get('/profile', VerifyJWT, getCustomerProfile);
+router.put('/updateprofile', VerifyJWT, updateCustomerProfile);
 
 
 module.exports = router;
