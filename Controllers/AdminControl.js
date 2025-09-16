@@ -1,0 +1,53 @@
+const User = require('../Models/userModel').default;
+
+const approveSeller = async (req, res) => {
+    try {
+        const { sellerId } = req.params;
+
+        // Find the user and update their accountStatus to 'approved'
+        const updatedSeller = await User.findByIdAndUpdate(
+            sellerId,
+            { accountStatus: 'active' },
+            { new: true } // Return the updated document
+        ).select('-password');
+
+        if (!updatedSeller) {
+            return res.status(404).json({ message: 'Seller not found.' });
+        }
+
+        res.status(200).json({
+            message: 'Seller approved successfully.',
+            seller: updatedSeller,
+        });
+    } catch (error) {
+        console.error('Error approving seller:', error);
+        res.status(500).json({ message: 'Internal server error.' });
+    }
+};
+
+const rejectSeller = async (req, res) => {
+    try {
+        const { sellerId } = req.params;
+
+        // Find the user and update their accountStatus to 'deactivated' or 'rejected'
+        const updatedSeller = await User.findByIdAndUpdate(
+            sellerId,
+            { accountStatus: 'rejected' },
+            { new: true }
+        ).select('-password');
+
+        if (!updatedSeller) {
+            return res.status(404).json({ message: 'Seller not found.' });
+        }
+
+        res.status(200).json({
+            message: 'Seller rejected successfully.',
+            seller: updatedSeller,
+        });
+    } catch (error) {
+        console.error('Error rejecting seller:', error);
+        res.status(500).json({ message: 'Internal server error.' });
+    }
+};
+
+module.exports = { approveSeller, rejectSeller };
