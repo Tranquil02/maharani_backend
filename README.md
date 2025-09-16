@@ -80,15 +80,15 @@ npm start
 
 ```mermaid
 graph TD
-    A[Client Request] --> B[Express.js Server]
-    B --> C[Routes]
-    C --> D[Middleware (Auth/Validation)]
-    D --> E[Controllers]
-    E --> F[Services (Business Logic)]
-    F --> G[MongoDB (Mongoose)]
-    G -->|Response| E
-    E -->|Response| B
-    B -->|Response| A
+    A(Client Request) --> B(Express.js Server)
+    B --> C(Routes)
+    C --> D(Middleware: Auth/Validation)
+    D --> E(Controllers)
+    E --> F(Services: Business Logic)
+    F --> G(MongoDB via Mongoose)
+    G --> E
+    E --> B
+    B --> A
 ```
 
 ---
@@ -107,4 +107,4 @@ Contributions are welcome!
 
 ## 📜 License
 
-This project is under Development and available under the [MIT License](LICENSE).
+This project is Under Development and available under the [MIT License](LICENSE).
