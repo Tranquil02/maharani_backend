@@ -1,11 +1,11 @@
 
-# 🏰 Maharani Backend
+#  Maharani Backend
 
 This is the backend server for the Maharani project, built with **Node.js**, **Express**, and **MongoDB**. It handles user authentication, product and service management, and other backend operations.
 
 ---
 
-## 📌 Features
+##  Features
 
 - JWT Authentication
 - Role-based Access Control
@@ -15,7 +15,7 @@ This is the backend server for the Maharani project, built with **Node.js**, **E
 
 ---
 
-## 🧱 Project Structure
+##  Project Structure
 
 ```
 maharani_backend/
@@ -31,7 +31,7 @@ maharani_backend/
 
 ---
 
-## 🛠️ Setup
+##  Setup
 
 ### Prerequisites
 
@@ -65,7 +65,7 @@ npm start
 
 ---
 
-## 🔗 API Endpoints (Sample)
+##  API Endpoints (Sample)
 
 | Method | Endpoint              | Description           |
 |--------|-----------------------|-----------------------|
@@ -76,24 +76,8 @@ npm start
 
 ---
 
-## 🧭 GitHub Diagram (System Workflow)
 
-```mermaid
-graph TD
-    A(Client Request) --> B(Express.js Server)
-    B --> C(Routes)
-    C --> D(Middleware: Auth/Validation)
-    D --> E(Controllers)
-    E --> F(Services: Business Logic)
-    F --> G(MongoDB via Mongoose)
-    G --> E
-    E --> B
-    B --> A
-```
-
----
-
-## 🤝 Contributing
+##  Contributing
 
 Contributions are welcome!
 
@@ -105,6 +89,6 @@ Contributions are welcome!
 
 ---
 
-## 📜 License
+##  License
 
 This project is Under Development and available under the [MIT License](LICENSE).
