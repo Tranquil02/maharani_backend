@@ -50,4 +50,24 @@ const rejectSeller = async (req, res) => {
     }
 };
 
-module.exports = { approveSeller, rejectSeller };
+const activeSellers= async (req,res)=>{
+    try{
+        const sellers = await User.find({role:'seller', accountStatus:'active'}).select('-password');
+        res.status(200).json({sellers});
+    }catch(error){
+        console.error('Error fetching active sellers:', error);
+        res.status(500).json({ message: 'Internal server error.' });
+    }
+}
+
+const pendingSellers= async (req,res)=>{
+    try{    
+        const sellers = await User.find({role:'seller', accountStatus:'pending'}).select('-password');
+        res.status(200).json({sellers});
+    }catch(error){
+        console.error('Error fetching pending sellers:', error);
+        res.status(500).json({ message: 'Internal server error.' });
+    }
+}
+
+module.exports = { approveSeller, rejectSeller, activeSellers, pendingSellers };
