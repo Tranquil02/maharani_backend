@@ -7,6 +7,7 @@ const productRoutes = require('./Routes/ProductRoute');
 const sellerRoutes=require("./Routes/sellerRoute");
 const AdminRoutes=require("./Routes/AdminRoute");
 const CartRoutes=require("./Routes/CartRoute");
+const orderRoutes = require('./Routes/OrderRoute');
 
 require('dotenv').config();
 
@@ -20,6 +21,7 @@ app.use('/api/v1/admin', AdminRoutes);
 app.use('/api/v1/product',productRoutes);
 app.use('/api/v1/seller', sellerRoutes);
 app.use('/api/v1/cart',CartRoutes);
+app.use('/api/v1/order', orderRoutes);
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/MaharaniDB';

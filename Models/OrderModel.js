@@ -4,10 +4,10 @@ const ProductOrderSchema = new mongoose.Schema({
     OrderID: { type: String, required: true, unique: true },
     transactionId: { type: String, unique: true }, //
 
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'customer' },
-    sellerID: { type: mongoose.Schema.Types.ObjectId, ref: 'seller' },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    sellerID: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 
-    ProductID: { type: mongoose.Schema.Types.ObjectId, ref: 'product' },
+    ProductID: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
     itemQuantity: { type: Number },
 
     paymentMode: { type: String, required: true },
@@ -32,7 +32,19 @@ const ProductOrderSchema = new mongoose.Schema({
     returnReason: { type: String },
     feedback: { type: String },
     rating: { type: Number, min: 1, max: 5 },
-    updatedAt: { type: Date, default: Date.now }
+    updatedAt: { type: Date, default: Date.now },
+    statusHistory: [{
+        status: { type: String, required: true },
+        changedAt: { type: Date, default: Date.now },
+        changedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
+    }]
 })
+
+// Add indexes for better query performance
+ProductOrderSchema.index({ userId: 1, orderDate: -1 });
+ProductOrderSchema.index({ sellerID: 1, orderDate: -1 });
+ProductOrderSchema.index({ OrderID: 1 });
+ProductOrderSchema.index({ status: 1 });
+ProductOrderSchema.index({ paymentStatus: 1 });
 
 module.exports = mongoose.model('ProductOrder', ProductOrderSchema);

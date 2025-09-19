@@ -8,13 +8,13 @@ const productSchema = new mongoose.Schema({
     images: [{ type: String }],
     category: { type: String, required: true },
     reviews: [{
-        user: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
+        user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
         rating: { type: Number, required: true },
         comment: { type: String }
     }],
     status: { type: String, enum: ['active','pending', 'inactive'], default: 'pending' },
     stock: { type: Number, default: 0 },
-    seller: { type: mongoose.Schema.Types.ObjectId, ref: 'users', required: true }
+    seller: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
 });
 
 const Product = mongoose.model("Product", productSchema);
