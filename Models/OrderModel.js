@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const ProductOrderSchema = new mongoose.Schema({
     OrderID: { type: String, required: true, unique: true },
-    transactionId: { type: String, required: true, unique: true }, //
+    transactionId: { type: String, unique: true }, //
 
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'customer' },
     sellerID: { type: mongoose.Schema.Types.ObjectId, ref: 'seller' },
@@ -21,8 +21,18 @@ const ProductOrderSchema = new mongoose.Schema({
         city: { type: String },
         state: { type: String },
         pincode: { type: Number },
-    }
-
+    },
+    totalAmount: { type: Number, required: true },
+    orderDate: { type: Date, default: Date.now },
+    expectedDeliveryDate: { type: Date },
+    actualDeliveryDate: { type: Date },
+    cancellationDate: { type: Date },
+    cancellationReason: { type: String },
+    returnDate: { type: Date },
+    returnReason: { type: String },
+    feedback: { type: String },
+    rating: { type: Number, min: 1, max: 5 },
+    updatedAt: { type: Date, default: Date.now }
 })
 
 module.exports = mongoose.model('ProductOrder', ProductOrderSchema);
