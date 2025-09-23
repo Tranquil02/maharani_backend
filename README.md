@@ -91,4 +91,4 @@ Contributions are welcome!
 
 ##  License
 
-This project is Under Development and available under the [MIT License](LICENSE).
+This project is Under Development
