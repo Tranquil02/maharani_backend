@@ -12,7 +12,7 @@ const productSchema = new mongoose.Schema({
         rating: { type: Number, required: true },
         comment: { type: String }
     }],
-    status: { type: String, enum: ['active','pending', 'inactive'], default: 'pending' },
+    status: { type: String, enum: ['active','pending', 'rejected'], default: 'pending' },
     stock: { type: Number, default: 0 },
     seller: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
 });
