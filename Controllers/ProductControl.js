@@ -1,6 +1,6 @@
 const Product = require('../Models/ProductModel');
 
-
+// Add Product - Only seller or admin can add product
 const addProduct = async (req, res) => {
   try {
     // console.log("User Info:", req.user); // Debugging line to check req.user
@@ -36,6 +36,7 @@ const addProduct = async (req, res) => {
   }
 };
 
+// delete Product - only seller who added the product or admin can delete the product
 const DeleteProduct = async (req, res) => {
   try {
     const { productId } = req.params;
@@ -58,7 +59,29 @@ const DeleteProduct = async (req, res) => {
   }
 };
 
-const GetProducts = async (req, res) => {
+// update Product - only seller who added the product or admin can update the product
+const UpdateProduct=async(req,res)=>{
+  try{
+    const {productId}=req.params;
+    if(req.user.role !== 'seller' && req.user.role !== 'admin'){
+      res.status(403);
+      throw new Error('Not authorized to update a product. Only sellers and admins can perform this action.');
+    }
+    const updatedProduct=await Product.findByIdAndUpdate(productId,req.body,{new:true});
+    if(!updatedProduct){
+      return res.status(404).json({message:'Product not found.'});
+    }
+    res.status(200).json(updatedProduct);
+  }
+  catch(error){
+    res.status(res.statusCode || 500).json({
+      message:error.message,
+    })
+  }
+}
+
+// get all Products which are active and in stock
+const GetAllProducts = async (req, res) => {
   try {
     const products = await Product.find({ 'status': 'active', stock: { $gt: 0 } });
     res.status(200).json({ products });
@@ -69,6 +92,7 @@ const GetProducts = async (req, res) => {
   }
 };
 
+// Get Product by ID
 const GetProductbyId = async (req, res) => {
   try {
     const { productId } = req.params;
@@ -84,7 +108,8 @@ const GetProductbyId = async (req, res) => {
   }
 }
 
-const GetProductsBySeller = async (req, res) => {
+// Get all Products of a Seller either active or rejected - only Admin and seller can access 
+const GetSellerProducts = async (req, res) => {
   try {
     const { sellerId } = req.params;
 
@@ -102,4 +127,32 @@ const GetProductsBySeller = async (req, res) => {
   }
 }
 
-module.exports = { addProduct, DeleteProduct, GetProducts, GetProductbyId, GetProductsBySeller };
+// Get all Products by a Seller which are active and in stock
+const GetProductsbySeller = async (req,res)=>{
+  try{
+    const { sellerId } = req.params;
+    const products = await Product.find({ seller: sellerId, status: 'active', stock: { $gt: 0 } });
+    res.status(200).json({ products });  
+  }
+  catch(error){
+    res.status(res.statusCode || 500).json({
+      message: error.message,
+    });
+  }
+}
+
+// Get all Products by category which are active and in stock
+const GetProductsbyCategory = async (req,res)=>{
+  try{
+    const {category}=req.params;
+    const products = await Product.find({category:category, status: 'active', stock: { $gt: 0 } });
+    res.status(200).json({ products });
+  }
+  catch(error){
+    res.status(res.statusCode || 500).json({
+      message: error.message,
+    });
+  }
+}
+
+module.exports = { addProduct, DeleteProduct, GetAllProducts, GetProductbyId, GetProductsbySeller, GetSellerProducts,GetProductsbyCategory ,UpdateProduct };

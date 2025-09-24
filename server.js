@@ -1,5 +1,4 @@
 const express = require('express');
-const mongoose = require('mongoose');
 
 // Import Routes
 const customerRoutes = require('./Routes/customerRoute');

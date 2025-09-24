@@ -65,18 +65,18 @@ exports.placeOrder = async (req, res) => {
 
         for (const item of cart.items) {
             const product = item.productId;
-            
+
             // Check product status
             if (product.status !== 'active') {
-                return res.status(400).json({ 
-                    message: `Product ${product.name} is not available for purchase` 
+                return res.status(400).json({
+                    message: `Product ${product.name} is not available for purchase`
                 });
             }
 
             // Check stock availability
             if (product.stock < item.quantity) {
-                return res.status(400).json({ 
-                    message: `Insufficient stock for ${product.name}` 
+                return res.status(400).json({
+                    message: `Insufficient stock for ${product.name}`
                 });
             }
 
@@ -87,7 +87,7 @@ exports.placeOrder = async (req, res) => {
             // Prepare stock update with check
             stockUpdates.push({
                 updateOne: {
-                    filter: { 
+                    filter: {
                         _id: product._id,
                         stock: { $gte: item.quantity }
                     },
@@ -120,15 +120,15 @@ exports.placeOrder = async (req, res) => {
             await session.withTransaction(async () => {
                 // Update product stock
                 const stockResult = await Product.bulkWrite(stockUpdates, { session });
-                
+
                 // Verify all stock updates succeeded
                 if (stockResult.modifiedCount !== stockUpdates.length) {
                     throw new Error('Stock update failed - insufficient quantity');
                 }
-                
+
                 // Create orders
                 await Order.insertMany(orders, { session });
-                
+
                 // Clear cart
                 await Cart.deleteOne({ userId }, { session });
             });
@@ -136,77 +136,78 @@ exports.placeOrder = async (req, res) => {
             await session.endSession();
         }
 
-            res.status(201).json({ 
-                message: 'Orders placed successfully',
-                orders: orders.map(o => o.OrderID)
-            });
-        } catch (error) {
-            console.error('Error in placeOrder:', error);
-            res.status(500).json({ message: 'Error placing order' });
+        res.status(201).json({
+            message: 'Orders placed successfully',
+            orders: orders.map(o => o.OrderID)
+        });
+    } catch (error) {
+        console.error('Error in placeOrder:', error);
+        res.status(500).json({ message: 'Error placing order' });
+    }
+};
+
+exports.getMyOrders = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const status = req.query.status;
+        const startDate = req.query.startDate;
+        const endDate = req.query.endDate;
+
+        const query = { userId: req.user.id };
+        if (status) query.status = status;
+        if (startDate && endDate) {
+            query.orderDate = {
+                $gte: new Date(startDate),
+                $lte: new Date(endDate)
+            };
         }
-    };
 
-    exports.getMyOrders = async (req, res) => {
-        try {
-            const page = parseInt(req.query.page) || 1;
-            const limit = parseInt(req.query.limit) || 10;
-            const status = req.query.status;
-            const startDate = req.query.startDate;
-            const endDate = req.query.endDate;
+        const orders = await Order.find(query)
+            .populate('ProductID', 'name images price discountPrice status')
+            .sort({ orderDate: -1 })
+            .skip((page - 1) * limit)
+            .limit(limit);
 
-            const query = { userId: req.user.id };
-            if (status) query.status = status;
-            if (startDate && endDate) {
-                query.orderDate = {
-                    $gte: new Date(startDate),
-                    $lte: new Date(endDate)
-                };
-            }
+        const total = await Order.countDocuments(query);
 
-            const orders = await Order.find(query)
-                .populate('ProductID', 'name images price discountPrice status')
-                .sort({ orderDate: -1 })
-                .skip((page - 1) * limit)
-                .limit(limit);
+        res.status(200).json({
+            orders,
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalOrders: total
+        });
+    } catch (error) {
+        console.error('Error in getMyOrders:', error);
+        res.status(500).json({ message: 'Error fetching orders' });
+    }
+};
 
-            const total = await Order.countDocuments(query);
+exports.getOrderById = async (req, res) => {
+    try {
+        const order = await Order.findOne({ OrderID: req.params.orderId })
+            .populate('ProductID', 'name images price discountPrice description status')
+            .populate('userId', 'fullName email')
+            .populate('sellerID', 'fullName email');
 
-            res.status(200).json({
-                orders,
-                currentPage: page,
-                totalPages: Math.ceil(total / limit),
-                totalOrders: total
-            });
-        } catch (error) {
-            console.error('Error in getMyOrders:', error);
-            res.status(500).json({ message: 'Error fetching orders' });
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
         }
-    };
 
-    exports.getOrderById = async (req, res) => {
-        try {
-            const order = await Order.findOne({ OrderID: req.params.orderId })
-                .populate('ProductID', 'name images price discountPrice description status')
-                .populate('userId', 'fullName email')
-                .populate('sellerID', 'fullName email');
-
-            if (!order) {
-                return res.status(404).json({ message: 'Order not found' });
-            }
-
-            // Verify user has permission to view this order
-            if (req.user.role !== 'admin' && 
-                req.user.id !== order.userId.toString() && 
-                req.user.id !== order.sellerID.toString()) {
-                return res.status(403).json({ message: 'Access denied' });
-            }
-
-            res.status(200).json(order);
-        } catch (error) {
-            console.error('Error in getOrderById:', error);
-            res.status(500).json({ message: 'Error fetching order details' });
+        // Verify user has permission to view this order
+        if (req.user.role !== 'admin' &&
+            req.user.id !== order.userId.toString() &&
+            req.user.id !== order.sellerID.toString()) {
+            return res.status(403).json({ message: 'Access denied' });
         }
-    };exports.getSellerOrders = async (req, res) => {
+
+        res.status(200).json(order);
+    } catch (error) {
+        console.error('Error in getOrderById:', error);
+        res.status(500).json({ message: 'Error fetching order details' });
+    }
+};
+exports.getSellerOrders = async (req, res) => {
     try {
         if (req.user.role !== 'seller' && req.user.role !== 'admin') {
             return res.status(403).json({ message: 'Access denied' });
@@ -265,8 +266,8 @@ exports.updateOrderStatus = async (req, res) => {
 
         // Validate status transition
         if (!validateStatusTransition(order.status, newStatus)) {
-            return res.status(400).json({ 
-                message: 'Invalid status transition. Valid transitions are: confirmed → in-transit → completed' 
+            return res.status(400).json({
+                message: 'Invalid status transition. Valid transitions are: confirmed → in-transit → completed'
             });
         }
 
@@ -283,7 +284,7 @@ exports.updateOrderStatus = async (req, res) => {
         }
 
         await order.save();
-        res.status(200).json({ 
+        res.status(200).json({
             message: 'Order status updated successfully',
             order
         });
@@ -303,16 +304,16 @@ exports.cancelOrder = async (req, res) => {
         }
 
         // Verify user has permission to cancel this order
-        if (req.user.role !== 'admin' && 
-            req.user.id !== order.userId.toString() && 
+        if (req.user.role !== 'admin' &&
+            req.user.id !== order.userId.toString() &&
             req.user.id !== order.sellerID.toString()) {
             return res.status(403).json({ message: 'Access denied' });
         }
 
         // Check if order can be cancelled
         if (!validateStatusTransition(order.status, 'cancelled')) {
-            return res.status(400).json({ 
-                message: 'Order cannot be cancelled in current status' 
+            return res.status(400).json({
+                message: 'Order cannot be cancelled in current status'
             });
         }
 
@@ -336,7 +337,7 @@ exports.cancelOrder = async (req, res) => {
             await session.endSession();
         }
 
-        res.status(200).json({ 
+        res.status(200).json({
             message: 'Order cancelled successfully',
             order
         });
@@ -352,8 +353,8 @@ exports.updatePaymentStatus = async (req, res) => {
         const validStatuses = ["Pending", "Processing", "Paid", "Failed", "Refunded"];
 
         if (!validStatuses.includes(paymentStatus)) {
-            return res.status(400).json({ 
-                message: 'Invalid payment status. Must be one of: ' + validStatuses.join(', ') 
+            return res.status(400).json({
+                message: 'Invalid payment status. Must be one of: ' + validStatuses.join(', ')
             });
         }
 
@@ -377,7 +378,7 @@ exports.updatePaymentStatus = async (req, res) => {
         order.paymentStatus = paymentStatus;
         await order.save();
 
-        res.status(200).json({ 
+        res.status(200).json({
             message: 'Payment status updated successfully',
             order
         });
@@ -404,8 +405,8 @@ exports.initiateReturn = async (req, res) => {
 
         // Can only return completed orders
         if (order.status !== 'completed') {
-            return res.status(400).json({ 
-                message: 'Return can only be initiated for completed orders' 
+            return res.status(400).json({
+                message: 'Return can only be initiated for completed orders'
             });
         }
 
@@ -414,7 +415,7 @@ exports.initiateReturn = async (req, res) => {
         order.returnDate = new Date();
         await order.save();
 
-        res.status(200).json({ 
+        res.status(200).json({
             message: 'Return initiated successfully',
             order
         });
@@ -440,8 +441,8 @@ exports.processRefund = async (req, res) => {
 
         // Validate refund amount
         if (refundAmount > order.totalAmount) {
-            return res.status(400).json({ 
-                message: 'Refund amount cannot exceed order amount' 
+            return res.status(400).json({
+                message: 'Refund amount cannot exceed order amount'
             });
         }
 
@@ -450,14 +451,14 @@ exports.processRefund = async (req, res) => {
             await session.withTransaction(async () => {
                 // Update payment status to refunded
                 order.paymentStatus = 'Refunded';
-                
+
                 // If it's a cancellation refund, status should be cancelled
                 if (order.status === 'confirmed') {
                     order.status = 'cancelled';
                     order.cancellationDate = new Date();
                     order.cancellationReason = 'Refunded due to cancellation';
                 }
-                
+
                 await order.save({ session });
 
                 // Restore product stock if cancelled before delivery
@@ -473,7 +474,7 @@ exports.processRefund = async (req, res) => {
             await session.endSession();
         }
 
-        res.status(200).json({ 
+        res.status(200).json({
             message: 'Refund processed successfully',
             order
         });
@@ -512,10 +513,10 @@ exports.getSellerAnalytics = async (req, res) => {
                         $sum: { $cond: [{ $eq: ['$status', 'cancelled'] }, 1, 0] }
                     },
                     totalRefunds: {
-                        $sum: { 
+                        $sum: {
                             $cond: [
-                                { $eq: ['$paymentStatus', 'Refunded'] }, 
-                                '$totalAmount', 
+                                { $eq: ['$paymentStatus', 'Refunded'] },
+                                '$totalAmount',
                                 0
                             ]
                         }
@@ -593,8 +594,8 @@ exports.getOrderHistory = async (req, res) => {
         }
 
         // Verify user has permission to view this order's history
-        if (req.user.role !== 'admin' && 
-            req.user.id !== order.userId.toString() && 
+        if (req.user.role !== 'admin' &&
+            req.user.id !== order.userId.toString() &&
             req.user.id !== order.sellerID.toString()) {
             return res.status(403).json({ message: 'Access denied' });
         }

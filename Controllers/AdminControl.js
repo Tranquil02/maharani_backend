@@ -122,4 +122,6 @@ const getAllUsers = async (req, res) => {
     }
 };
 
+
+
 module.exports = { approveSeller, rejectSeller, activeSellers, pendingSellers, approveProduct, rejectProduct, getAllUsers };
