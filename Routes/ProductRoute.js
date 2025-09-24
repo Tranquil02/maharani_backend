@@ -1,6 +1,6 @@
 const express = require('express');
 const { VerifyJWT} = require('../Middleware/Functions');
-const { addProduct, DeleteProduct, GetProductbyId, GetProductsBySeller, GetSellerProducts, GetProductsbySeller, GetProductsbyCategory, GetAllProducts, UpdateProduct } = require('../Controllers/ProductControl');
+const { addProduct, DeleteProduct, GetProductbyId, GetSellerProducts, GetProductsbySeller, GetProductsbyCategory, GetAllProducts, UpdateProduct } = require('../Controllers/ProductControl');
 
 
 
