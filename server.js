@@ -8,6 +8,7 @@ const sellerRoutes=require("./Routes/sellerRoute");
 const AdminRoutes=require("./Routes/AdminRoute");
 const CartRoutes=require("./Routes/CartRoute");
 const orderRoutes = require('./Routes/OrderRoute');
+const connectDB = require('./config/db');
 
 require('dotenv').config();
 
@@ -24,17 +25,6 @@ app.use('/api/v1/cart',CartRoutes);
 app.use('/api/v1/order', orderRoutes);
 
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/MaharaniDB';
-
-const connectDB = async () => {
-  try {
-    const conn = await mongoose.connect(MONGO_URI);
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
-  } catch (error) {
-    console.error(`Error connecting to MongoDB: ${error.message}`);
-    process.exit(1);
-  }
-};
 
 connectDB();
 
