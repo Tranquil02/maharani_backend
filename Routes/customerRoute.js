@@ -1,5 +1,5 @@
 const express = require('express');
-const { customerLogin, customerRegister, getCustomerProfile } = require('../Auth/customerAuth');
+const { customerLogin, customerRegister, getCustomerProfile, createRazorpayOrder, verifyPayment, handleWebhook } = require('../Auth/customerAuth');
 const {VerifyJWT} = require('../Middleware/Functions');
 const { updateCustomerProfile, addwishlist, removeFromWishList, getAllwishList } = require('../Controllers/CustomerControl');
 
@@ -20,6 +20,9 @@ router.put('/addwishlist/:productId', VerifyJWT, addwishlist);
 router.put('/removewishlist/:productId', VerifyJWT, removeFromWishList);
 router.get('/getwishlist', VerifyJWT, getAllwishList);
 
-
+// Payment Routes
+router.post('/payment/create', VerifyJWT, createRazorpayOrder);
+router.post('/payment/verify', VerifyJWT, verifyPayment);
+router.post('/payment/webhook', handleWebhook);
 
 module.exports = router;

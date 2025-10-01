@@ -1,5 +1,6 @@
-const bcrypt=require("bcryptjs");
-const jwt=require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+
 const { default: User } = require("../Models/userModel");
 const { generateAuthToken } = require("../Middleware/Functions");
 
@@ -79,7 +80,7 @@ const customerRegister = async (req, res) => {
 const getCustomerProfile = async (req, res) => {
     try {
         // req.user contains the payload from the JWT token (e.g., { id, email, role })
-        const userId = req.user.id; 
+        const userId = req.user.id;
 
         // Now you can find the full user profile from the database
         const user = await User.findById(userId).select('-password'); // Exclude the password
@@ -95,4 +96,10 @@ const getCustomerProfile = async (req, res) => {
     }
 };
 
-module.exports = { customerLogin, customerRegister, getCustomerProfile };
+
+
+module.exports = {
+    customerLogin,
+    customerRegister,
+    getCustomerProfile,
+};

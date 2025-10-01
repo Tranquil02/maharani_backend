@@ -425,65 +425,6 @@ exports.initiateReturn = async (req, res) => {
     }
 };
 
-exports.processRefund = async (req, res) => {
-    try {
-        const { OrderID, refundAmount } = req.body;
-        const order = await Order.findOne({ OrderID });
-
-        if (!order) {
-            return res.status(404).json({ message: 'Order not found' });
-        }
-
-        // Only admin or seller can process refund
-        if (req.user.role !== 'admin' && req.user.id !== order.sellerID.toString()) {
-            return res.status(403).json({ message: 'Access denied' });
-        }
-
-        // Validate refund amount
-        if (refundAmount > order.totalAmount) {
-            return res.status(400).json({
-                message: 'Refund amount cannot exceed order amount'
-            });
-        }
-
-        const session = await Order.startSession();
-        try {
-            await session.withTransaction(async () => {
-                // Update payment status to refunded
-                order.paymentStatus = 'Refunded';
-
-                // If it's a cancellation refund, status should be cancelled
-                if (order.status === 'confirmed') {
-                    order.status = 'cancelled';
-                    order.cancellationDate = new Date();
-                    order.cancellationReason = 'Refunded due to cancellation';
-                }
-
-                await order.save({ session });
-
-                // Restore product stock if cancelled before delivery
-                if (order.status === 'cancelled') {
-                    await Product.updateOne(
-                        { _id: order.ProductID },
-                        { $inc: { stock: order.itemQuantity } },
-                        { session }
-                    );
-                }
-            });
-        } finally {
-            await session.endSession();
-        }
-
-        res.status(200).json({
-            message: 'Refund processed successfully',
-            order
-        });
-    } catch (error) {
-        console.error('Error in processRefund:', error);
-        res.status(500).json({ message: 'Error processing refund' });
-    }
-};
-
 // Analytics
 exports.getSellerAnalytics = async (req, res) => {
     try {
